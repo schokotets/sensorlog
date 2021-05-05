@@ -1,28 +1,72 @@
 <!DOCTYPE html>
 <head>
   <title>Messdata</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+  <script
+    src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
+    defer
+  ></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
   <script src="https://cdn.jsdelivr.net/npm/dayjs@1.10.4/dayjs.min.js"></script>
 
-
-	<link rel="stylesheet" type="text/css" href="spinner.css">
+  <link rel="stylesheet" type="text/css" href="spinner.css" />
 </head>
 <body onload="loadData()">
   <form>
     <div x-data="{ 'querymethod_hours': isHoursMode() }">
-      <input type="radio" name="mode" value="hours" x-bind:checked="querymethod_hours" @click="querymethod_hours = true" @click.once="loadNHours()">
-      <input x-bind:disabled="!querymethod_hours" type="text" style="width: 4em" name="nhours" id="nhours">
-      <label x-bind:disabled="!querymethod_hours" for="nhours">&nbsp;letzte Stunden&nbsp;</label>
-      <br>
-      <input type="radio" name="mode" value="dates" x-bind:checked="!querymethod_hours" @click="querymethod_hours = false" @click.once="loadDatepicker()">
-      <input x-bind:disabled="querymethod_hours" style="width: 24ch;" type="text" id="daterange" readonly>
-      <input x-bind:disabled="querymethod_hours" style="display: none;" type="text" name="from" id="from" readonly>
-      <input x-bind:disabled="querymethod_hours" style="display: none;" type="text" name="to" id="to" readonly>
+      <input
+        type="radio"
+        name="mode"
+        value="hours"
+        x-bind:checked="querymethod_hours"
+        @click="querymethod_hours = true"
+        @click.once="loadNHours()"
+      />
+      <input
+        x-bind:disabled="!querymethod_hours"
+        type="text"
+        style="width: 4em"
+        name="nhours"
+        id="nhours"
+      />
+      <label x-bind:disabled="!querymethod_hours" for="nhours"
+        >&nbsp;letzte Stunden&nbsp;</label
+      >
+      <br />
+      <input
+        type="radio"
+        name="mode"
+        value="dates"
+        x-bind:checked="!querymethod_hours"
+        @click="querymethod_hours = false"
+        @click.once="loadDatepicker()"
+      />
+      <input
+        x-bind:disabled="querymethod_hours"
+        style="width: 24ch"
+        type="text"
+        id="daterange"
+        readonly
+      />
+      <input
+        x-bind:disabled="querymethod_hours"
+        style="display: none"
+        type="text"
+        name="from"
+        id="from"
+        readonly
+      />
+      <input
+        x-bind:disabled="querymethod_hours"
+        style="display: none"
+        type="text"
+        name="to"
+        id="to"
+        readonly
+      />
 
       <button type="submit">zeigen</button>
     </div>
@@ -31,7 +75,12 @@
     -->
     <div id="litepicker"></div>
   </form>
-	<div style="display: none;" id="spinner" class="lds-ring"><div></div><div></div><div></div><div></div></div>
+  <div style="display: none" id="spinner" class="lds-ring">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
   <div class="legend" id="tempChart-legend"></div>
   <div class="chartcontainer">
     <canvas id="tempChart"></canvas>
@@ -46,17 +95,17 @@
   </div>
   <script src="drawchart.js"></script>
   <script src="datepicker.js"></script>
-  <style> 
-form {
-  margin-bottom: 1em;
-}
-.chartcontainer {
-  height: 15em;
-	margin-bottom: 2em;
-}
-.legend .list span {
-  display: inline-block;
-  color: white;
-}
+  <style>
+    form {
+      margin-bottom: 1em;
+    }
+    .chartcontainer {
+      height: 15em;
+      margin-bottom: 2em;
+    }
+    .legend .list span {
+      display: inline-block;
+      color: white;
+    }
   </style>
 </body>
