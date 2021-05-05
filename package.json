@@ -1,0 +1,22 @@
+{
+  "name": "sensorlog",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "schokotets",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "dayjs": "^1.10.4",
+    "koa": "^2.13.0",
+    "koa-body": "^4.2.0",
+    "koa-bodyparser": "^4.3.0",
+    "koa-static": "^5.0.0",
+    "sqlite3": "^5.0.0"
+  },
+  "devDependencies": {
+    "prettier": "2.2.1"
+  }
+}
