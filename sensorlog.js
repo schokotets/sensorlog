@@ -9,6 +9,13 @@ app.use(
   })
 );
 
+const compress = require("koa-compress")
+app.use(compress({
+  filter () { return true },
+  threshold: 2048,
+  br: false
+}))
+
 const serve = require("koa-static");
 app.use(serve("./static"));
 
