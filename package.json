@@ -9,6 +9,7 @@
   "author": "schokotets",
   "license": "BSD-3-Clause",
   "dependencies": {
+    "axios": "^0.21.1",
     "dayjs": "^1.10.4",
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",

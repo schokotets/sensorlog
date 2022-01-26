@@ -1,5 +1,6 @@
 const Koa = require("koa");
 const app = new Koa();
+
 const dayjs = require("dayjs");
 
 const bodyParser = require("koa-bodyparser");
@@ -9,39 +10,44 @@ app.use(
   })
 );
 
-const compress = require("koa-compress")
-app.use(compress({
-  filter () { return true },
-  threshold: 2048,
-  br: false
-}))
+const compress = require("koa-compress");
+app.use(
+  compress({
+    filter() {
+      return true;
+    },
+    threshold: 2048,
+    br: false,
+  })
+);
 
 const serve = require("koa-static");
 app.use(serve("./static"));
 
-const sqlite3 = require("sqlite3");
-let connected = false;
-var db = new sqlite3.Database("./sensordata.sql", (err) => {
-  if (err) {
-    console.log(err);
-  } else {
-    connected = true;
-  }
-});
-db.run(
-  "CREATE TABLE IF NOT EXISTS sensordata (unixtime INTEGER, id INTEGER, temp REAL, relhum REAL, abshum REAL)"
-);
+const database = require("./database");
+database.connect();
 
-console.log("database tables created");
+const messaging = require("./messaging");
+messaging.startMessaging();
 
-let lines = [];
-
+// WEB
 app.use(async (ctx) => {
   if (ctx.url == "/log") {
     console.log(ctx.request.body);
     save(ctx.request.body);
     console.log();
-    lines.push(ctx.request.body);
+  } else if (ctx.url.startsWith("/lastmeasurement")) {
+    let time = await database.getLastMeasurementTime().catch((err) => {
+      ctx.body = JSON.stringify(err);
+      console.error(err);
+      return null;
+    });
+    if (time == null) {
+      ctx.response.status = 500;
+      //ctx.body = ""
+    } else {
+      ctx.body = "hello";
+    }
   } else if (ctx.url.startsWith("/data")) {
     let mode = ctx.request.query.mode;
 
@@ -61,8 +67,7 @@ app.use(async (ctx) => {
     if (toDateQuery) toDate = dayjs(toDateQuery).endOf("day");
     else toDate = dayjs();
 
-    console.log(toDate);
-    let dbdata = await getSensorData(
+    let dbdata = await database.getSensorData(
       fromDate.unix() * 1000,
       toDate.unix() * 1000
     );
@@ -70,7 +75,8 @@ app.use(async (ctx) => {
     ctx.body = JSON.stringify(dbdata);
     console.log("done with JSON", new Date().toISOString());
   } else {
-    ctx.body = "Hello World\n" + lines.join("\n");
+    ctx.response.status = 404;
+    ctx.body = "404 Not Found";
   }
 });
 
@@ -89,14 +95,7 @@ function save(str) {
     abshum = calAbsHum(temp, relhum);
     data.push({ pin, temp, relhum, abshum });
   }
-  if (connected) {
-    for (s of data) {
-      let time = Date.now();
-      let querystring = `INSERT INTO sensordata(unixtime,id,temp,relhum,abshum) VALUES(${time},${s.pin},${s.temp},${s.relhum},${s.abshum})`;
-      db.run(querystring);
-    }
-    console.log(`${new Date().toISOString()} inserted data`);
-  }
+  database.save(data);
 }
 
 function calAbsHum(temp, hum) {
@@ -104,23 +103,4 @@ function calAbsHum(temp, hum) {
     (6.112 * Math.exp((17.67 * temp) / (temp + 243.5)) * hum * 2.1674) /
     (273.15 + temp);
   return Math.round(abshum * 10) / 10;
-}
-
-async function getSensorData(from, to) {
-  return new Promise((resolve, reject) => {
-    let rows = [];
-    console.log("getting from db", new Date().toISOString());
-    let query = `SELECT * FROM sensordata WHERE unixtime >= ${from} AND unixtime <= ${to}`;
-    db.each(
-      query,
-      (err, row) => {
-        if (err) reject(err);
-        else rows.push(Object.values(row));
-      },
-      (err, n) => {
-        if (err) reject(err);
-        else resolve(rows);
-      }
-    );
-  });
 }
